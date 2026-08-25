@@ -20,3 +20,15 @@ button,input,textarea { font:inherit; } button { cursor:pointer; } button:disabl
 @layer base { * { outline-color:#c7f36b55; } }
 
 :root { --radius:0.625rem; }
+.clip-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.clips-section { margin-top:34px; }
+.ai-badge { display:flex; align-items:center; gap:5px; color:#c7f36b; font-size:10px; letter-spacing:.7px; }
+.clip-card { overflow:hidden; background:#13181d; border:1px solid #2b333b; border-radius:12px; transition:border-color .2s,transform .2s; }
+.clip-card:hover,.clip-card.selected { border-color:#c7f36b; transform:translateY(-2px); }
+.clip-main { width:100%; display:flex; gap:12px; padding:12px; color:inherit; text-align:right; background:none; border:0; }
+.clip-thumb { position:relative; flex:none; width:76px; height:104px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; background:linear-gradient(150deg,#34514d,#14231f 55%,#b17a4d); }
+.clip-thumb span { display:grid; place-items:center; width:30px; height:30px; color:#10140d; background:#c7f36b; border-radius:50%; }.clip-thumb b { position:absolute; bottom:6px; color:#fff; font-size:9px; direction:ltr; }
+.clip-copy { min-width:0; display:flex; flex-direction:column; gap:6px; }.clip-copy strong { font-size:13px; }.clip-copy p { min-height:34px; margin:0; color:#8d969f; font-size:11px; line-height:1.5; }.score-row { display:flex; flex-wrap:wrap; gap:7px; color:#727c87; font-size:9px; }.score-row b { color:#c7f36b; font-size:11px; }
+.clip-actions { display:flex; gap:8px; padding:10px 12px; border-top:1px solid #252b32; }.clip-actions button { display:flex; align-items:center; gap:5px; padding:7px 9px; color:#aab2bb; background:#1a2026; border:1px solid #303941; border-radius:6px; font-size:10px; }.clip-actions button:last-child { color:#10140d; background:#c7f36b; border-color:#c7f36b; font-weight:700; }
+.source-button { display:flex; align-items:center; gap:8px; margin-top:12px; padding:9px 12px; color:#c7f36b; background:#192119; border:1px solid #334028; border-radius:7px; font-size:11px; }.status-message { margin:12px 0 0; color:#a9d95b; font-size:11px; line-height:1.6; }.video-canvas video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:filter .2s,transform .2s; }
+@media (max-width:700px) { .clip-grid { grid-template-columns:1fr; } }
