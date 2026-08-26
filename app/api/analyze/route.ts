@@ -8,8 +8,13 @@ export async function POST(request: Request) {
   if (!worker) return NextResponse.json({ error: 'خدمة المعالجة غير متصلة. أضف VIDEO_WORKER_URL لعامل Downloader + FFmpeg + Gemini.' }, { status: 503 })
   try {
     const response = await fetch(`${worker.replace(/\/$/, '')}/analyze`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url }), cache: 'no-store' })
-    const data = await response.json().catch(() => ({}))
-    if (!response.ok) return NextResponse.json({ error: data.error || 'فشل العامل في تحليل الفيديو' }, { status: response.status })
+    const raw = await response.text()
+    let data: Record<string, unknown> = {}
+    try { data = raw ? JSON.parse(raw) : {} } catch { data = {} }
+    if (!response.ok) return NextResponse.json({ error: typeof data.error === 'string' ? data.error : `فشل العامل في تحليل الفيديو (${response.status})` }, { status: response.status })
+    if (!Array.isArray(data.clips) || data.clips.length === 0) {
+      return NextResponse.json({ error: 'العامل متصل لكنه لم يُرجع مقاطع. يجب أن يعيد { clips: [{ id, start, end, title, hook, caption, scores, previewUrl, rawUrl }] }.' }, { status: 502 })
+    }
     return NextResponse.json(data)
   } catch { return NextResponse.json({ error: 'تعذر الاتصال بعامل الفيديو' }, { status: 502 }) }
 }
