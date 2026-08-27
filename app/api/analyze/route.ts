@@ -4,10 +4,9 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   const url = typeof body?.url === 'string' ? body.url.trim() : ''
   if (!/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(url)) return NextResponse.json({ error: 'رابط يوتيوب غير صالح' }, { status: 400 })
-  const worker = process.env.VIDEO_WORKER_URL
-  if (!worker) return NextResponse.json({ error: 'خدمة المعالجة غير متصلة. أضف VIDEO_WORKER_URL لعامل Downloader + FFmpeg + Gemini.' }, { status: 503 })
+  const worker = 'https://videoai-production-d50e.up.railway.app'
   try {
-    const response = await fetch(`${worker.replace(/\/$/, '')}/analyze`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url }), cache: 'no-store' })
+    const response = await fetch(`${worker}/analyze`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ url }), cache: 'no-store', signal: AbortSignal.timeout(120000) })
     const raw = await response.text()
     let data: Record<string, unknown> = {}
     try { data = raw ? JSON.parse(raw) : {} } catch { data = {} }
