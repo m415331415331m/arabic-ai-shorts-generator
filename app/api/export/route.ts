@@ -3,13 +3,18 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   if (!body || typeof body.url !== 'string' || !body.clipId || !['raw', 'render'].includes(body.mode)) return NextResponse.json({ error: 'بيانات التصدير غير مكتملة' }, { status: 400 })
-  const configuredWorker = process.env.VIDEO_WORKER_URL?.trim()
-  if (!configuredWorker) return NextResponse.json({ success: false, error: 'VIDEO_WORKER_URL غير مضبوط في بيئة الخادم.', stage: 'configuration' }, { status: 500 })
+  const configuredWorker = process.env.VIDEO_WORKER_URL_2?.trim()
+  if (!configuredWorker) return NextResponse.json({ success: false, error: 'VIDEO_WORKER_URL_2 غير مضبوط في بيئة الخادم.', stage: 'configuration' }, { status: 500 })
   const worker = configuredWorker.replace(/\/$/, '')
-  console.log('[API EXPORT] worker URL configured:', Boolean(process.env.VIDEO_WORKER_URL))
+  const requestId = crypto.randomUUID()
+  const workerHost = (() => { try { return new URL(worker).hostname } catch { return '[invalid-worker-url]' } })()
+  const endpoint = `${worker}/${body.mode === 'raw' ? 'clip' : 'render'}`
+  console.log('[API EXPORT] requestId:', requestId)
+  console.log('[API EXPORT] worker hostname:', workerHost)
+  console.log('[API EXPORT] outbound URL:', endpoint)
   console.log('[API EXPORT] export mode:', body.mode, 'clip ID:', body.clipId)
   try {
-    const response = await fetch(`${worker}/${body.mode === 'raw' ? 'clip' : 'render'}`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ url: body.url, clipId: body.clipId, edit: body.edit }), cache: 'no-store', signal: AbortSignal.timeout(300000) })
+    const response = await fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ url: body.url, clipId: body.clipId, mode: body.mode, edit: body.edit }), cache: 'no-store', signal: AbortSignal.timeout(300000) })
     const raw = await response.text()
     let data: Record<string, unknown>
     try {
